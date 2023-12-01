@@ -9,7 +9,7 @@ for line in data.splitlines():
     result += numbers[0] * 10
     result += numbers[-1]
 
-print("part1: ", result)
+print(f"part1: {result}")
 
 word_numbers = {
     "one": 1,
@@ -36,4 +36,4 @@ for line in data.splitlines():
     result += first * 10
     result += last
 
-print("part2: ", result)
+print(f"part2: {result}")
