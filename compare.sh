@@ -1,4 +1,4 @@
-for day in day01
+for day in day01 day02
 do
     python_out=$(./runpy.sh $day)
     cuda_out=$(./runcu.sh $day)

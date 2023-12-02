@@ -104,11 +104,96 @@ __global__ void part1(int *d_input, int n_rows, int *d_out) {
     }
 }
 
+__global__ void part2(int *d_input, int n_rows, int *d_out) {
+    int n_cols = 300;
+    int row = blockIdx.x * blockDim.x + threadIdx.x;
+    int start = row * n_cols;
+
+    int r_min = 0;
+    int g_min = 0;
+    int b_min = 0;
+
+    int r = 114;
+    int g = 103;
+    int b = 98;
+
+    int space = 32;
+    int colon = 58;
+
+    int curr_count = 0;
+    int valid = 1;
+
+    if (row < n_rows) {
+        int state = 0; 
+        int i = start;
+        while (i < start + 200) {
+            if (d_input[i] == 0) {
+                // Into the padding on a row...
+                break;
+            }
+
+            if (state == 0) {
+                // Move past the "Game N:"
+                if (d_input[i] == colon) {
+                    state = 1;
+                    i += 1;
+                } else {
+                    i += 1;
+                }
+
+            } else if (state == 1) {
+                // Parse a number
+                if (d_input[i] != space) {
+                    i += 1;
+                } else {
+                    curr_count = parse_int(d_input, i + 1, space, 0);
+                    i += 1;
+                    state = 2; // Parse colour
+                }
+
+            } else if (state == 2) {
+                // Parse a colour
+                if (d_input[i] == r) {
+                    if (curr_count > r_min) {
+                        r_min = curr_count;
+                    }
+                    i += 3;
+                    state = 1;  // Parse number
+                } else if (d_input[i] == g) {
+                    if (curr_count > g_min) {
+                        g_min = curr_count;
+                    }
+                    i += 3;
+                    state = 1;  // Parse number
+                } else if (d_input[i] == b) {
+                    if (curr_count > b_min) {
+                        b_min = curr_count;
+                    }
+                    i += 3;
+                    state = 1;  // Parse number
+                } else {
+                    i += 1;
+                }
+            }
+        }
+        if (valid == 1) {
+            d_out[row] = r_min * g_min * b_min;
+        }
+    }
+}
+
 void part1(int* d_input, int n_rows) {
     int *d_out = empty(n_rows);
     part1<<<blocks(n_rows), threads(n_rows)>>>(d_input, n_rows, d_out);
     int *part1_result = sum(d_out, n_rows);
     printf("part1: %d\n", from_device(part1_result, 1)[0]);
+}
+
+void part2(int* d_input, int n_rows) {
+    int *d_out = empty(n_rows);
+    part2<<<blocks(n_rows), threads(n_rows)>>>(d_input, n_rows, d_out);
+    int *part1_result = sum(d_out, n_rows);
+    printf("part2: %d\n", from_device(part1_result, 1)[0]);
 }
 
 int main() {
@@ -131,6 +216,7 @@ int main() {
     int *d_input = to_device(input, n_rows * n_cols);
 
     part1(d_input, n_rows);
+    part2(d_input, n_rows);
 
     return 0;
 }
