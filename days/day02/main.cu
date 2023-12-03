@@ -4,24 +4,6 @@
 #include "../../lib/cuda.h"
 #include "../../lib/ops.h"
 
-__device__ int parse_int(int *d_input, int start, int space, int pad) {
-    int digits[5];
-    int n_digits = 0;
-    for (int i = 0; i < 6; i++) {
-        int c = d_input[start + i];
-        if (c == space | c == pad) {
-            break;
-        }
-        n_digits += 1;
-        digits[i] = c - 48;
-    }
-    int out = 0;
-    for (int j = 0; j < n_digits; j++) {
-        out += pow(10, (n_digits - j - 1)) * digits[j];
-    }
-    return out;
-}
-
 __global__ void part1(int *d_input, int n_rows, int *d_out) {
     int n_cols = 300;
     int row = blockIdx.x * blockDim.x + threadIdx.x;

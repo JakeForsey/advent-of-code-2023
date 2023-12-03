@@ -92,3 +92,21 @@ int *mul(int *d_input, int n, int other) {
 int *sum(int *d_input, int n) {
     return _reduce(0, d_input, n);
 }
+
+__device__ int parse_int(int *d_input, int start, int space, int pad) {
+    int digits[7];  // Parse at most 7 digits
+    int n_digits = 0;
+    for (int i = 0; i < 7; i++) {
+        int c = d_input[start + i];
+        if (c == space | c == pad) {
+            break;
+        }
+        n_digits += 1;
+        digits[i] = c - 48;
+    }
+    int out = 0;
+    for (int j = 0; j < n_digits; j++) {
+        out += pow(10, (n_digits - j - 1)) * digits[j];
+    }
+    return out;
+}
