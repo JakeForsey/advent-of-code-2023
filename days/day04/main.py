@@ -37,4 +37,4 @@ while todo:
     for i in range(li + 1, li + 1 + calculate_wins(lines[li])):
         todo.append(i)
 
-print(f"part 2: {result}")
+print(f"part2: {result}")

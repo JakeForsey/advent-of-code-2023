@@ -40,12 +40,44 @@ __global__ void duplicates(int *d_input, int n_cols, int n_rows, int *d_out) {
     }
 }
 
+__global__ void roll_out(int *d_total_wins, int n, int *d_out) {
+    __shared__ int todo[10000];
+    int total = 0;
+    int end = 0;
+    if (blockIdx.x * blockDim.x + threadIdx.x == 0) {
+        for (int i = 0; i < n; i ++) {
+            todo[end] = i;
+            end += 1;
+        }
+        while (end > 0) {
+            int i = todo[end];
+            todo[end] = 0;
+            end -= 1;
+            total += 1;
+            for (int ii = i + 1; ii < i + d_total_wins[i] + 1; ii++) {
+                end += 1;
+                todo[end] = ii;
+            }
+        }
+        d_out[0] = total;
+    }
+}
+
 void part1(int *d_input, int n_cols, int n_rows) {
     int *d_wins = empty(n_cols * n_rows);
     duplicates<<<n_rows, n_cols>>>(d_input, n_cols, n_rows, d_wins);
     int *d_total_wins = div(sum_cols(d_wins, n_cols, n_rows), n_rows, 2);
     int *d_scores = pow(sub(d_total_wins, n_rows, 1), n_rows, 2);
     printf("part1: %d\n", from_device(sum(d_scores, n_rows), 1)[0]);
+}
+
+void part2(int *d_input, int n_cols, int n_rows) {
+    int *d_wins = empty(n_cols * n_rows);
+    duplicates<<<n_rows, n_cols>>>(d_input, n_cols, n_rows, d_wins);
+    int *d_total_wins = div(sum_cols(d_wins, n_cols, n_rows), n_rows, 2);
+    int *d_out = empty(1);
+    roll_out<<<1, 1>>>(d_total_wins, n_rows, d_out);
+    printf("part2: %d\n", from_device(d_out, 1)[0]);
 }
 
 int main() {
@@ -62,7 +94,7 @@ int main() {
         }
         int value = text[i];
         if (value == 67) {
-            // Handle "G" from "Card N:"
+            // Handle "C" from "Card N:"
             while (text[i] != 58) {
                 // Skip to ":"
                 i += 1;
@@ -95,6 +127,7 @@ int main() {
     int *d_input = to_device(input, n_rows * n_cols);
 
     part1(d_input, n_cols, n_rows);
+    part2(d_input, n_cols, n_rows);
 
     return 0;
 }
