@@ -6,22 +6,21 @@ convertions = data.split("\n\n")[1:]
 
 min_location = float("inf")
 for seed in seeds:
-    value = seed
     for convertion in convertions:
         for row in convertion.splitlines()[1:]:
-            dest, convertion_sstart, size  = map(int, row.split())
-            convertion_start, convertion_end = convertion_sstart, convertion_sstart + size
-            if (convertion_start <= value and value < convertion_end):
-                value = dest + (value - convertion_start)
+            dest, convertion_start, size  = map(int, row.split())
+            convertion_start, convertion_end = convertion_start, convertion_start + size
+            if (convertion_start <= seed and seed < convertion_end):
+                seed = dest + (seed - convertion_start)
                 break
-    if (value < min_location):
-        min_location = value
+    if (seed < min_location):
+        min_location = seed
 
 print(f"part1: {min_location}")
 
 todo = []
-for convertion_start, size in zip(seeds[::2], seeds[1::2]):
-    todo.append((convertion_start, convertion_start + size, convertions.copy()))
+for seed_start, size in zip(seeds[::2], seeds[1::2]):
+    todo.append((seed_start, seed_start + size, convertions.copy()))
 
 locations = []
 while todo:
