@@ -8,9 +8,21 @@ int *empty(int n) {
     return d_input;
 }
 
+long *empty_long(int n) {
+    long *d_input;
+    cudaMalloc((void**)&d_input, sizeof(long) * n);
+    return d_input;
+}
+
 int *to_device(int *input, int n) {
     int *d_input = empty(n);
     cudaMemcpy(d_input, input, sizeof(int) * n, cudaMemcpyHostToDevice);
+    return d_input;
+}
+
+long *to_device_long(long *input, int n) {
+    long *d_input = empty_long(n);
+    cudaMemcpy(d_input, input, sizeof(long) * n, cudaMemcpyHostToDevice);
     return d_input;
 }
 
