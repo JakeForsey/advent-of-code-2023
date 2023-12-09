@@ -15,4 +15,6 @@ int *sum_cols(int *d_input, int n_cols, int n_rows);
 
 __device__ int parse_int(int *d_input, int start, int space, int pad);
 
+int h_parse_int(char *input, int start);
+
 #endif

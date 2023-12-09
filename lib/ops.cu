@@ -176,3 +176,30 @@ __device__ int parse_int(int *d_input, int start, int space, int pad) {
     }
     return out;
 }
+
+int h_parse_int(char *input, int start) {
+    int max_digits = 10;
+    int digits[max_digits];
+    int n_digits = 0;
+    int negative = 0;
+    for (int i = 0; i < max_digits; i++) {
+        int c = input[start + i];
+        if (c == 32 | c == 0 | c == 10) {  // handle spaces (32) and padding (0) and new line (10)
+            break;
+        } else if (c == 45) {  // handle minus sign (45)
+            negative = 1;
+            continue;
+        }
+        digits[n_digits] = c - 48;
+        n_digits += 1;
+    }
+    int out = 0;
+    for (int j = 0; j < n_digits; j++) {
+        out += pow(10, (n_digits - j - 1)) * digits[j];
+    }
+    if (negative == 1) {
+        return -out;
+    } else {
+        return out;
+    }
+}
