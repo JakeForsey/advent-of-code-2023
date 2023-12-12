@@ -1,6 +1,5 @@
-from functools import lru_cache
-from itertools import combinations, takewhile
 from collections import defaultdict
+from functools import lru_cache
 
 with open("days/day12/input", "r") as f:
     data = f.read()
