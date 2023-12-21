@@ -1,4 +1,5 @@
 from collections import defaultdict
+import math
 from typing import NamedTuple
 
 NodeId = str
@@ -92,9 +93,11 @@ for line in data.splitlines():
         raise AssertionError("unreachable")
     nodes[source_id] = node
 
+periods = {}
 total_low, total_high = 0, 0
-for step in range(1000):
-    total_low += 1  # button pushes count as low beams
+for step in range(1, 10000):
+    if step < 1001:
+        total_low += 1  # button pushes count as low beams
     beams = [("roadcaster", Beam("roadcaster", False))]
     while beams:
         next_beams = []
@@ -102,11 +105,28 @@ for step in range(1000):
             next_beam = nodes.get(node_id, NoOp()).step(beam)
             if next_beam is not None:
                 for other_id in edges[node_id]:                    
-                    if next_beam.high:
-                        total_high += 1
-                    else:
-                        total_low += 1
+                    if step < 1001:
+                        if next_beam.high:
+                            total_high += 1
+                        else:
+                            total_low += 1
                     next_beams.append((other_id, next_beam))
         beams = next_beams
 
-print(f"part1: {total_low * total_high}")
+    # Hardcoded the central nodes in each subgraph 
+    for node_id in ["cs", "ck", "jh", "dx"]:
+        if node_id in periods:
+            continue
+        states = []
+        parent_ids = {n for n, ns in edges.items() if node_id in ns}
+        parent_ids |= set(edges[node_id])
+        
+        for parent_id in parent_ids:
+            parent = nodes[parent_id]
+            if isinstance(parent, FlipFlop):    
+                states.append(int(parent.on))
+        if all([s == 0 for s in states]):
+            periods[node_id] = step
+
+print(f"part1: {total_high * total_low}")
+print(f"part2: {math.lcm(*periods.values())}")
