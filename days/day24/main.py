@@ -37,7 +37,6 @@ for i, formula_1 in enumerate(formulas):
             continue
 
         if (min_x < x < max_x and min_y < y < max_y):
-            print("RESULT")
             result += 1
 
 print(f"part1: {result}")
